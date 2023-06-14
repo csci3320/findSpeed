@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Username Finding Speed</title>
+</head>
+
+<body style="background-color:black;color:white">
+  <div>
+    Search through a large list of usernames to see if a use exists.
+  </div>
+  <div>
+    <input type="text" value="Hi">
+  </div>
+  <script>
+
+    Object.assign(String.prototype, {
+      f() {
+        return this.toLocaleString("en-US")
+      }
+    });
+    Object.assign(Number.prototype, {
+      f() {
+        return this.toLocaleString("en-US")
+      }
+    });
+    Object.assign(Number.prototype, {
+      floor() {
+        return Math.floor(this)
+      }
+    });
+
+    function main() {
+
+      let dailyActiveUsers = 2_000_000_000
+      let secondsInADay = 24 * 60 * 60;
+      let loginsPerSecond = dailyActiveUsers / secondsInADay
+      let maxLoginMS = 1_000 / loginsPerSecond
+      let facebookScale = 1;
+
+
+      let username = "abcdefg@unomaha.edu"
+      console.log("Loading usernames")
+
+      let lotsOfNames = [];
+      let stop = false;
+      while (!stop) {
+        try {
+          lotsOfNames.push(username);
+          if(lotsOfNames.length * username.length > performance.memory.jsHeapSizeLimit/4/100)
+            break;
+        }
+        catch (e) {
+          stop = true;
+        }
+      }
+      console.log(lotsOfNames.length)
+      //return;
+
+      console.log("Facebooks' daily active users is approximately: " + dailyActiveUsers.f())
+      console.log("Facebook's minimum number of logins per second: " + Math.floor(loginsPerSecond).f())
+
+
+
+      console.log("Our browser caps memory allocation at (GB): " + (performance.memory.jsHeapSizeLimit / 1_000_000_000).f())
+
+      var millisecondsToWait = 0;
+
+      let bob;
+      let denominator = 1;
+      let found = false;
+      while (!found) {
+        try {
+          bob = new Uint32Array(performance.memory.jsHeapSizeLimit / denominator)
+          console.log("JS let us a create an array that uses (% of space) " + Math.floor(100 / denominator))
+          console.log("This creates an array with (GB): " + ((bob.length * 4) / 1_000_000_000).f())
+          console.log("This creates an array with (count values): " + bob.length.f())
+          facebookScale = (dailyActiveUsers / bob.length).floor();
+          console.log("To simulated Facebook, every query will be repeated (times): " + facebookScale.floor())
+          found = true;
+        }
+        catch (e) {
+          if (e.name == "RangeError") {
+            denominator++;
+            continue;
+          }
+          console.error(e.name)
+          return;
+
+        }
+      }
+
+      let start, end, time;
+      // console.log(names.split(/\r?\n/).length)
+      // let namesArray = names.split(/\r?\n/)
+      // let allNames = namesArray.map(n => n.split(",")[0])
+      // console.log(allNames[0])
+
+      start = performance.now()
+      let longNameArray = []
+
+      for (let i = 0; i < bob.length; i++) {
+        let toAdd = i + 1;
+        bob[i] = toAdd;
+      }
+
+      end = performance.now()
+      console.log("It took " + Math.floor((end - start)) + "ms to produce a database of length: " + bob.length.f());
+
+      console.log();
+
+      let name = 1;
+      let badName = 0
+
+      start = performance.now()
+      for (let i = 0; i < facebookScale; i++) {
+        bob.includes(name);
+      }
+      end = performance.now();
+      time = (end - start).floor()
+      console.log("To determine that " + name + " was in the array, it took (ms): " + time)
+
+      start = performance.now()
+      for (let i = 0; i < facebookScale; i++) {
+        bob.includes(badName);
+      }
+      end = performance.now();
+      time = (end - start).floor();
+      console.log("To determine that " + badName + " was not in the array, it took (ms): " + time)
+      console.log("We only have time for each login (ms):" + maxLoginMS);
+      let computers = (time / maxLoginMS).floor();
+      console.log("It would take computers to handle these logins (count): " + computers.f())
+    }
+
+    main();
+
+
+
+
+  </script>
+</body>
+
+</html>

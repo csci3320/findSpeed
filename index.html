@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Username Finding Speed</title>
+</head>
+
+<body style="background-color:black;color:white">
+  <div>
+    Search through a large list of usernames to see if a use exists.
+  </div>
+  <div>
+    <input type="text" value="Hi">
+  </div>
+  <script>
+
+    function findMatchAt(array, index, length, searchFor) {
+      let slice = array.slice(index * length, (index + 1) * length);
+      let locallyValid = true;
+      for (let i = 0; i < slice.length && locallyValid; i++) {
+        if (searchFor.charCodeAt(i) != slice[i]) {
+          locallyValid = false
+          break;
+        }
+      }
+      if (locallyValid) {
+        return index
+      }
+      return -1;
+    }
+
+    function fullSearch(array, string) {
+      let foundTheString = false;
+      for (let j = 0; j < array.length / string.length; j++) {
+        let result = findMatchAt(array, j, string.length, string)
+        if (result >= 0) {
+          console.log("We found it at: " + result)
+          foundTheString = true;
+          break;
+        }
+      }
+      if (!foundTheString)
+        console.log(" -- We didn't find a match.")
+    }
+
+    function timeIt(f){
+      start = performance.now()
+      f()
+      end = performance.now();
+      time = (end - start).floor()
+      return time;
+    }
+
+    //From https://stackoverflow.com/a/12646864/10047920
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    Object.assign(String.prototype, {
+      f() {
+        return this.toLocaleString("en-US")
+      }
+    });
+    Object.assign(Number.prototype, {
+      f() {
+        return this.toLocaleString("en-US")
+      }
+    });
+    Object.assign(Number.prototype, {
+      floor() {
+        return Math.floor(this)
+      }
+    });
+
+    let start, end, time;
+
+    let nextRandomIndex = 0;
+    let randomChars = [120, 122, 102, 104, 110, 116, 118, 115, 100, 99, 97, 106, 114, 112, 117, 105, 101, 111, 121, 109, 108, 98, 107, 113, 103, 119]
+    let randomCharsLength = randomChars.length;
+
+
+    function main() {
+
+      let dailyActiveUsers = 2_000_000_000
+      let secondsInADay = 24 * 60 * 60;
+      let loginsPerSecond = dailyActiveUsers / secondsInADay
+      let maxLoginMS = 1_000 / loginsPerSecond
+      let facebookScale = 1;
+
+
+      let username = "username@unomaha.edu"
+      console.log("Loading usernames")
+
+      let lotsOfNames = [];
+      let stop = false;
+
+      console.log("Facebooks' daily active users is approximately: " + dailyActiveUsers.f())
+      console.log("Facebook's minimum number of logins per second: " + Math.floor(loginsPerSecond).f())
+
+      console.log("Our browser caps memory allocation at (GB): " + (performance.memory.jsHeapSizeLimit / 1_000_000_000).f())
+
+      var millisecondsToWait = 0;
+
+      let name = "abc";
+      let badName = "ab!"
+
+      let randomCharacterArray;
+      let denominator = 100;
+      let randomProbability = .99999
+      let found = false;
+      while (!found) {
+        try {
+          randomCharacterArray = new Uint8Array(performance.memory.jsHeapSizeLimit / denominator)
+          console.log("JS let us a create an array that uses (% of space) " + Math.floor(100 / denominator))
+          console.log("This creates an array with (GB): " + ((randomCharacterArray.length) / 1_000_000_000).f())
+          console.log("This creates an array with (count values): " + randomCharacterArray.length.f())
+          facebookScale = (dailyActiveUsers / randomCharacterArray.length).floor();
+          console.log("To simulated Facebook, every query will be repeated (times): " + facebookScale.floor())
+          found = true;
+        }
+        catch (e) {
+          if (e.name == "RangeError") {
+            denominator++;
+            continue;
+          }
+          console.error(e.name)
+          return;
+        }
+      }
+
+      start = performance.now()
+      let longNameArray = []
+
+      for (let i = 0; i < randomCharacterArray.length; i++) {
+        randomCharacterArray[i] = randomChars[nextRandomIndex++]
+        if (nextRandomIndex >= randomCharsLength) {
+          nextRandomIndex = 0;
+        }
+        if (Math.random() > randomProbability) {
+          console.log(" - Randomizing")
+          shuffleArray(randomChars)
+        }
+      }
+
+      end = performance.now()
+      console.log("It took " + Math.floor((end - start)) + "ms to produce a database of length: " + randomCharacterArray.length.f());
+
+      console.log();
+
+
+
+      
+      let time;
+      time = timeIt(()=>fullSearch(randomCharacterArray, name));
+      console.log("To check whether " + name + " was in the array, it took (ms): " + time)
+
+      time = timeIt(()=>fullSearch(randomCharacterArray, badName));
+      
+      console.log("To determine that " + badName + " was/wasn't in the array, it took (ms): " + time)
+      console.log("We only have time for each login (ms):" + maxLoginMS);
+      let computers = (time * facebookScale/ maxLoginMS).floor();
+      console.log("It would take computers to handle these logins (count): " + computers.f())
+    }
+
+    main();
+
+  </script>
+</body>
+
+</html>

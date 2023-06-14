@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Username Finding Speed</title>
+</head>
+
+<body style="background-color:black;color:white">
+  <div>
+    Search through a large list of usernames to see if a use exists.
+  </div>
+  <div>
+    <input type="text" value="Hi">
+  </div>
+  <script>
+
+    //From https://stackoverflow.com/a/12646864/10047920
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    Object.assign(String.prototype, {
+      f() {
+        return this.toLocaleString("en-US")
+      }
+    });
+    Object.assign(Number.prototype, {
+      f() {
+        return this.toLocaleString("en-US")
+      }
+    });
+    Object.assign(Number.prototype, {
+      floor() {
+        return Math.floor(this)
+      }
+    });
+
+    //console.log(names.split(/\r?\n/).length)
+    //let namesArray = names.split(/\r?\n/)
+    //let allNames = namesArray.map(n => n.split(",")[0])
+    //console.log(allNames[0])
+
+    let start, end, time;
+
+    let nextRandomIndex = 0;
+    let randomChars = [120, 122, 102, 104, 110, 116, 118, 115, 100, 99, 97, 106, 114, 112, 117, 105, 101, 111, 121, 109, 108, 98, 107, 113, 103, 119]
+    let randomCharsLength = randomChars.length;
+
+    // function setArrayAt(array, jump, index) {
+    //   let startingIndex = index * jump;
+    //   for (let i = 0; i < randomCharsLength; i++) {
+    //     array[startingIndex + i] = randomChars[nextRandomIndex++]
+    //     if (nextRandomIndex >= randomCharsLength) {
+    //       nextRandomIndex = 0;
+    //     }
+    //     //nextRandomIndex %= randomCharsLength
+    //   }
+    // }
+    // function getArrayAt(array, jump, index) {
+    //   let startingIndex = index * jump;
+    //   let toReturn = "";
+    //   for (let i = 0; i < jump; i++) {
+    //     toReturn += String.fromCharCode(array[startingIndex + i])
+    //   }
+    //   return toReturn;
+    // }
+
+
+    function main() {
+
+      let dailyActiveUsers = 2_000_000_000
+      let secondsInADay = 24 * 60 * 60;
+      let loginsPerSecond = dailyActiveUsers / secondsInADay
+      let maxLoginMS = 1_000 / loginsPerSecond
+      let facebookScale = 1;
+
+
+      let username = "username@unomaha.edu"
+      console.log("Loading usernames")
+
+      let lotsOfNames = [];
+      let stop = false;
+
+      // start = performance.now()
+      // while (!stop) {
+      //   try {
+      //     //let r1 = (Math.random() * allNames.length).floor();
+      //     //let r2 = (Math.random() * allNames.length).floor();
+      //     //lotsOfNames.push(r1 + "@" + r2 + ".com");
+      //     lotsOfNames.push("1234567890@unomaha.edu")
+      //     if (lotsOfNames.length * username.length > performance.memory.jsHeapSizeLimit / 4 / 200)
+      //       break;
+      //   }
+      //   catch (e) {
+      //     stop = true;
+      //   }
+      // }
+      // end = performance.now()
+      // console.log(lotsOfNames.length.f() + " names loaded in (ms): " + (end - start).f())
+      // console.log((lotsOfNames.length * 20).f() + " bytes of names loaded in (ms): " + (end - start).f())
+      // //return;
+
+      console.log("Facebooks' daily active users is approximately: " + dailyActiveUsers.f())
+      console.log("Facebook's minimum number of logins per second: " + Math.floor(loginsPerSecond).f())
+
+
+
+      console.log("Our browser caps memory allocation at (GB): " + (performance.memory.jsHeapSizeLimit / 1_000_000_000).f())
+
+      var millisecondsToWait = 0;
+
+      let bob;
+      let denominator = 1000000;
+      let found = false;
+      while (!found) {
+        try {
+          bob = new Uint8Array(performance.memory.jsHeapSizeLimit / denominator)
+          console.log("JS let us a create an array that uses (% of space) " + Math.floor(100 / denominator))
+          console.log("This creates an array with (GB): " + ((bob.length) / 1_000_000_000).f())
+          console.log("This creates an array with (count values): " + bob.length.f())
+          facebookScale = (dailyActiveUsers / bob.length).floor();
+          console.log("To simulated Facebook, every query will be repeated (times): " + facebookScale.floor())
+          found = true;
+        }
+        catch (e) {
+          if (e.name == "RangeError") {
+            denominator++;
+            continue;
+          }
+          console.error(e.name)
+          return;
+        }
+      }
+
+
+
+
+
+      start = performance.now()
+      let longNameArray = []
+
+
+
+
+      for (let i = 0; i < bob.length; i++) {
+        bob[i] = randomChars[nextRandomIndex++]
+        if (nextRandomIndex >= randomCharsLength) {
+          nextRandomIndex = 0;
+        }
+        if (Math.random() > .9999999999) {
+
+        }
+
+      }
+      // for (let i = 0; i < bob.length / username.length / 1; i++) {
+      //   //setArrayAt(bob, username.length, i, username)
+      // }
+
+      end = performance.now()
+      console.log("It took " + Math.floor((end - start)) + "ms to produce a database of length: " + bob.length.f());
+      // console.log(getArrayAt(bob, username.length, 2000))
+
+
+      console.log();
+
+      let name = "xze";
+      let badName = 0
+
+      start = performance.now()
+      let sliceSize = name.length;
+      //for (let i = 0; i < facebookScale; i++) {
+      for (let j = 0; j < bob.length / name.length; j++) {
+
+        let slice = bob.slice(j * sliceSize, (j + 1) * sliceSize);
+        let valid = true;
+        for (let k = 0; k < slice.length && valid; k++) {
+          if (name.charCodeAt(k) != slice[k]) {
+            valid = false;
+          }
+        }
+        if (valid) {
+          console.log("We found it")
+          console.log(slice.join(" "))
+          return;
+        }
+
+      }
+      //}
+      end = performance.now();
+      time = (end - start).floor()
+      console.log("To determine that " + name + " was in the array, it took (ms): " + time)
+
+      start = performance.now()
+      for (let i = 0; i < facebookScale; i++) {
+        bob.includes(badName);
+      }
+      end = performance.now();
+      time = (end - start).floor();
+      console.log("To determine that " + badName + " was not in the array, it took (ms): " + time)
+      console.log("We only have time for each login (ms):" + maxLoginMS);
+      let computers = (time / maxLoginMS).floor();
+      console.log("It would take computers to handle these logins (count): " + computers.f())
+    }
+
+    main();
+
+
+
+
+  </script>
+</body>
+
+</html>
