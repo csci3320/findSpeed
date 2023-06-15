@@ -12,7 +12,12 @@
 
   </div>
   <script>
+    let log = document.querySelector("#log")
     let ww = new Worker("./web-worker.js")
+    ww.onmessage = e=>{
+      log.innerHTML += e.data + "<br>"
+    }
+    
   </script>
 </body>
 
